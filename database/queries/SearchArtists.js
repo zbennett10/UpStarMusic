@@ -12,7 +12,7 @@ module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
     //used interpolated properties for sort property
     const artists = Artist.find(buildQuery(criteria)).sort({[sortProperty]: 1}).skip(offset).limit(limit);
 
-    return Promise.all([artists, artists.count()])
+    return Promise.all([artists, Artist.find(buildQuery(criteria)).count()])
         .then((results) => {
             return {all: results[0], count: results[1], offset: offset, limit: limit};
         });
@@ -21,10 +21,7 @@ module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
 const buildQuery = (criteria) => {
     const query = {};
     if(critera.age) {
-        query.age = {
-            $gte: criteria.age.min,
-            $lte: criteria.age.max
-        };
+        query.$text = { $search: criteria.name};
     }
 
     if(critera.yearsActive) {
